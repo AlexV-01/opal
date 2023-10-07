@@ -20,11 +20,20 @@ struct Token
 	union
 	{
 		Operator op;
-		std::string iden;
+		char* iden;
 		Separator sep;
 		int32_t intLit;
 		float floatLit;
-	}; 
+	};
+
+	int32_t line;
+	int32_t charIdx;
+
+	Token(TokenTypes type, Operator op);
+	Token(TokenTypes type, char* iden);
+	Token(TokenTypes type, Separator sep);
+	Token(TokenTypes type, int32_t intLit);
+	Token(TokenTypes type, float floatLit);
 };
 
 #endif

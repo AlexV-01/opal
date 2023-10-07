@@ -11,7 +11,12 @@ enum Operator
     MULT,
     DIV,
     MOD,
-
+    EQUALITY,
+    GREATER,
+    LESS,
+    GREATEREQ,
+    LESSEQ,
+    EXP,
     FN,
     OF,
     OTHERWISE
@@ -23,7 +28,7 @@ enum Separator
     CLOSE_CURLY,
     OPEN_PAREN,
     CLOSE_PAREN,
-    ARROW
+    COLON
 };
 
 const std::unordered_map<std::string, Operator> OPERATORS = {
@@ -32,8 +37,14 @@ const std::unordered_map<std::string, Operator> OPERATORS = {
     {"*", MULT},
     {"/", DIV},
     {"%", MOD},
-    {"fn", FN},
-    {"of", OF},
+    {"=", EQUALITY},
+    {">", GREATER},
+    {"<", LESS},
+    {">=", GREATEREQ},
+    {"<=", LESSEQ},
+    {"^", EXP},
+    {"fn ", FN},
+    {"of ", OF},
     {"otherwise", OTHERWISE}
 };
 
@@ -42,7 +53,7 @@ const std::unordered_map<std::string, Separator> SEPARATORS = {
     {"}", CLOSE_CURLY},
     {"(", OPEN_PAREN},
     {")", CLOSE_PAREN},
-    {"->", ARROW}
+    {":", COLON}
 };
 
 #endif
