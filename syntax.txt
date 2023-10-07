@@ -1,0 +1,18 @@
+https://github.com/frozein/PropScript/blob/master/src/lexer.cpp
+
+fn name of x y z
+{
+	x + y       -> x >= 3
+	name(x y z) -> x > 0
+	y           -> otherwise
+}
+
+OPERATORS:
+"fn", "of", "[math]: +,-,*,/,..."
+
+SEPERATORS:
+"{", "}", "(", ")",  "->"
+
+NEWLINES
+
+ALL ELSE IS AN IDENTIFIER

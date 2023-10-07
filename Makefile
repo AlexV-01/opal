@@ -130,6 +130,54 @@ opal/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/build
 .PHONY : opal/fast
 
+src/interpreter.o: src/interpreter.cpp.o
+.PHONY : src/interpreter.o
+
+# target to build an object file
+src/interpreter.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/interpreter.cpp.o
+.PHONY : src/interpreter.cpp.o
+
+src/interpreter.i: src/interpreter.cpp.i
+.PHONY : src/interpreter.i
+
+# target to preprocess a source file
+src/interpreter.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/interpreter.cpp.i
+.PHONY : src/interpreter.cpp.i
+
+src/interpreter.s: src/interpreter.cpp.s
+.PHONY : src/interpreter.s
+
+# target to generate assembly for a file
+src/interpreter.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/interpreter.cpp.s
+.PHONY : src/interpreter.cpp.s
+
+src/lexer.o: src/lexer.cpp.o
+.PHONY : src/lexer.o
+
+# target to build an object file
+src/lexer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/lexer.cpp.o
+.PHONY : src/lexer.cpp.o
+
+src/lexer.i: src/lexer.cpp.i
+.PHONY : src/lexer.i
+
+# target to preprocess a source file
+src/lexer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/lexer.cpp.i
+.PHONY : src/lexer.cpp.i
+
+src/lexer.s: src/lexer.cpp.s
+.PHONY : src/lexer.s
+
+# target to generate assembly for a file
+src/lexer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/lexer.cpp.s
+.PHONY : src/lexer.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -154,6 +202,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/parser.o: src/parser.cpp.o
+.PHONY : src/parser.o
+
+# target to build an object file
+src/parser.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/parser.cpp.o
+.PHONY : src/parser.cpp.o
+
+src/parser.i: src/parser.cpp.i
+.PHONY : src/parser.i
+
+# target to preprocess a source file
+src/parser.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/parser.cpp.i
+.PHONY : src/parser.cpp.i
+
+src/parser.s: src/parser.cpp.s
+.PHONY : src/parser.s
+
+# target to generate assembly for a file
+src/parser.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/parser.cpp.s
+.PHONY : src/parser.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -163,9 +235,18 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... opal"
+	@echo "... src/interpreter.o"
+	@echo "... src/interpreter.i"
+	@echo "... src/interpreter.s"
+	@echo "... src/lexer.o"
+	@echo "... src/lexer.i"
+	@echo "... src/lexer.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/parser.o"
+	@echo "... src/parser.i"
+	@echo "... src/parser.s"
 .PHONY : help
 
 
