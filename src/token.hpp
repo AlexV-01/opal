@@ -14,7 +14,9 @@ struct Token
 		SEPARATOR,
 		NEWLINE,
 		INT_LITERAL,
-		FLOAT_LITERAL
+		FLOAT_LITERAL,
+
+		EMPTY
 	} type;
 
 	union
