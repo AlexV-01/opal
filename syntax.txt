@@ -8,7 +8,7 @@ fn name of x y z
 }
 
 OPERATORS:
-"fn", "of", "[math]: +,-,*,/,..."
+"fn", "of", , "otherwise", "[math]: +,-,*,/,..."
 
 SEPERATORS:
 "{", "}", "(", ")",  "->"
