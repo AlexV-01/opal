@@ -28,6 +28,7 @@ enum Separator
     CLOSE_CURLY,
     OPEN_PAREN,
     CLOSE_PAREN,
+    COMMA,
     COLON
 };
 
@@ -53,6 +54,7 @@ const std::unordered_map<std::string, Separator> SEPARATORS = {
     {"}", CLOSE_CURLY},
     {"(", OPEN_PAREN},
     {")", CLOSE_PAREN},
+    {",", COMMA},
     {":", COLON}
 };
 

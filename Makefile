@@ -226,6 +226,30 @@ src/parser.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/parser.cpp.s
 .PHONY : src/parser.cpp.s
 
+src/token.o: src/token.cpp.o
+.PHONY : src/token.o
+
+# target to build an object file
+src/token.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/token.cpp.o
+.PHONY : src/token.cpp.o
+
+src/token.i: src/token.cpp.i
+.PHONY : src/token.i
+
+# target to preprocess a source file
+src/token.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/token.cpp.i
+.PHONY : src/token.cpp.i
+
+src/token.s: src/token.cpp.s
+.PHONY : src/token.s
+
+# target to generate assembly for a file
+src/token.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/opal.dir/build.make CMakeFiles/opal.dir/src/token.cpp.s
+.PHONY : src/token.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -247,6 +271,9 @@ help:
 	@echo "... src/parser.o"
 	@echo "... src/parser.i"
 	@echo "... src/parser.s"
+	@echo "... src/token.o"
+	@echo "... src/token.i"
+	@echo "... src/token.s"
 .PHONY : help
 
 

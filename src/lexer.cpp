@@ -8,7 +8,8 @@ static std::vector<std::string> sorted_operators() {
     for (auto op : OPERATORS) {
         ops.push_back(op.first);
     }
-    std::sort(ops.begin(), ops.end()).reverse();
+    std::sort(ops.begin(), ops.end());
+    reverse(ops.begin(), ops.end());
     return ops;
 }
 
@@ -17,7 +18,8 @@ static std::vector<std::string> sorted_separators() {
     for (auto sep : SEPARATORS) {
         seps.push_back(sep.first);
     }
-    std::sort(seps.begin(), seps.end()).reverse();
+    std::sort(seps.begin(), seps.end());
+    std::reverse(seps.begin(), seps.end());
     return seps;
 }
 
@@ -37,7 +39,7 @@ public:
         l = line;
         c = charIdx;
     }
-}
+};
 
 std::vector<Token> lex_file(std::string fileName) {
     std::vector<Token> list;
@@ -91,24 +93,37 @@ std::vector<Token> lex_file(std::string fileName) {
         }
 
         // CHECK FOR AN INTEGER OR FLOAT LITERAL
+        bool is_number = std::isdigit(file.peek()) || file.peek() == '.' ? true : false;
         bool is_int = true;
-        //std::isdigit('5');
-        std::string acc;
-        while (is_int) {
-            if (file.peek() == '.') {
-                is_int = false;
-                acc += file.get();
-                break;
+        if (is_number) {
+            std::string acc;
+            while (is_int && !file.eof()) {
+                if (file.peek() == '.') {
+                    is_int = false;
+                    acc += file.get();
+                    break;
+                }
+                if (std::isdigit(file.peek())) {
+                    acc += file.get();
+                } else {
+                    break;
+                }
             }
-            if (std::isdigit(file.peek())) {
+            while (!is_int && !file.eof()) { // only executes for float literals
+                if (!std::isdigit(file.peek())) break;
                 acc += file.get();
-            } else {
-                break;
             }
+            if (acc == ".") {
+                // THROW LEX ERROR
+            }
+            if (is_int) {
+                list.push_back(new Token(INT_LITERAL, stoi(acc)));
+            } else if (is_int == false) {
+                list.push_back(new Token(FLOAT_LITERAL, ftoi(acc)));
+            }
+            goto beginning;
         }
-        while (!is_int) { // only executes for float literals
 
-        }
     }
 
     file.close();
