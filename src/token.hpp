@@ -14,17 +14,22 @@ struct Token
 		SEPARATOR,
 		NEWLINE,
 		INT_LITERAL,
-		FLOAT_LITERAL
+		FLOAT_LITERAL,
+
+		EMPTY
 	} type;
 
 	union
 	{
 		Operator op;
-		std::string iden;
+		char* iden;
 		Separator sep;
 		int32_t intLit;
 		float floatLit;
-	}; 
+	};
+
+	int32_t line;
+	int32_t charIdx;
 };
 
 #endif

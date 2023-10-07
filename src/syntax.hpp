@@ -45,4 +45,12 @@ const std::unordered_map<std::string, Separator> SEPARATORS = {
     {"->", ARROW}
 };
 
+const std::unordered_map<Operator, int32_t> ORDER_OF_OPERATIONS = {
+    {ADD, 0},
+    {SUB, 0},
+    {MULT, 1},
+    {DIV, 1},
+    {MOD, 1}
+};
+
 #endif
