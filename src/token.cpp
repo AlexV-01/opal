@@ -24,3 +24,7 @@ Token::Token(TokenTypes type, float floatLit) {
     this->type = type;
     this->floatLit = floatLit;
 }
+
+Token::Token(TokenTypes type) {
+    this->type = type;
+}

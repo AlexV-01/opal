@@ -48,6 +48,17 @@ std::vector<Token> lex_file(std::string fileName) {
 
     while (!file.eof()) {
         beginning:
+        // CHECK FOR A NEW LINE
+        if (file.peek() == '\n') {
+            list.push_back(new Token(NEWLINE));
+            goto beginning;
+        }
+
+        // IGNORE ANY WHITESPACE
+        while (std::isspace(file.peek())) {
+            file.get();
+        }
+
         // CHECK FOR AN OPERATOR
         char buffer[MAX_OP_LEN];
         file.read(buffer, MAX_OP_LEN);
@@ -96,7 +107,7 @@ std::vector<Token> lex_file(std::string fileName) {
         bool is_number = std::isdigit(file.peek()) || file.peek() == '.' ? true : false;
         bool is_int = true;
         if (is_number) {
-            std::string acc;
+            std::string acc = "";
             while (is_int && !file.eof()) {
                 if (file.peek() == '.') {
                     is_int = false;
@@ -117,13 +128,25 @@ std::vector<Token> lex_file(std::string fileName) {
                 // THROW LEX ERROR
             }
             if (is_int) {
-                list.push_back(new Token(INT_LITERAL, stoi(acc)));
+                list.push_back(new Token(INT_LITERAL, std::stoi(acc)));
             } else if (is_int == false) {
-                list.push_back(new Token(FLOAT_LITERAL, ftoi(acc)));
+                list.push_back(new Token(FLOAT_LITERAL, std::stof(acc)));
             }
             goto beginning;
         }
 
+        // ANYTHING PAST THIS POINT IS AN IDENTIFIER
+        if (!(std::isalpha(file.peek()) || file.peek() == '_')) {
+            // THROW LEX ERROR
+        } else {
+            std::string acc = "";
+            while (std::isalnum(file.peek()) || file.peek() == '_') {
+                acc += file.get();
+            }
+            char* identifier = malloc(acc.length());
+            strcpy(identifier, acc);
+            list.push_back(new Token(IDENTIFIER, identifier));
+        }
     }
 
     file.close();
