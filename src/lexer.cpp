@@ -59,6 +59,26 @@ std::vector<Token> lex_file(std::string fileName) {
             file.get();
         }
 
+
+
+        // COMMENTS
+        if(file.peek()=='?'){
+            while(true){
+                // case: end
+                if (file.peek() == '\n'){
+                    list.push_back(new Token(NEWLINE));
+                    break;
+                }
+                if(file.eof()){
+                    break;
+                }           
+                // case:?
+                file.get();
+
+            }
+        }
+
+
         // CHECK FOR AN OPERATOR
         char buffer[MAX_OP_LEN];
         file.read(buffer, MAX_OP_LEN);
