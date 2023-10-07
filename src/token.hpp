@@ -3,6 +3,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "syntax.hpp"
 
 struct Token
 {
@@ -18,9 +19,9 @@ struct Token
 
 	union
 	{
-		std::string op;
+		Operator op;
 		std::string iden;
-		std::string sep;
+		Separator sep;
 		int32_t intLit;
 		float floatLit;
 	}; 

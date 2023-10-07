@@ -28,7 +28,7 @@ enum Separator
 
 const std::unordered_map<std::string, Operator> OPERATORS = {
     {"+", ADD},
-    {"+", SUB},
+    {"-", SUB},
     {"*", MULT},
     {"/", DIV},
     {"%", MOD},
