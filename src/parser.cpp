@@ -1,6 +1,7 @@
 #include "parser.hpp"
 #include <iostream>
 #include <string.h>
+#include <stack>
 
 //------------------------------------------------------
 //base parse error:
@@ -95,7 +96,7 @@ inline static void remove_newline_tokens(std::vector<Token>& tokens, size_t& pos
 inline static Token next_token_keep_newline(std::vector<Token>& tokens, size_t& pos)
 {
     if(pos >= tokens.size())
-        return {Token::EMPTY};
+        return Token(Token::EMPTY);
     else
         return tokens[pos++];
 }
@@ -246,64 +247,47 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
     else
         pos--;
 
-    Expression* left;
-    Expression* op;
-    Expression* right;
-    if(nextToken.type == Token::OPERATOR && nextToken.op == SUB)
+    //shunting yard:
+    std::stack<Expression*> nums;
+    std::stack<Expression*> ops;
+
+    while(true)
     {
-        Expression minus1;
-        minus1.type = Expression::INT_LITERAL;
-        minus1.intLit.val = -1;
-        ast->expressionBuf.push_back(minus1);
-        left = &ast->expressionBuf.back();
+        nums.push(parse_iden_lit(ast, tokens, pos, parenDepth));
+        
+        Token nextToken = next_token(tokens, pos, parenDepth);
+        if(nextToken.type != Token::OPERATOR)
+            break;
+        pos--;
 
-        Expression mult;
-        mult.type = Expression::OPERATOR;
-        mult.op.op = MULT;
-        ast->expressionBuf.push_back(mult);
-        left = &ast->expressionBuf.back();
-
-        pos++;
-        right = parse_iden_lit(ast, tokens, pos, parenDepth);
-    }
-    else
-    {
-        left = parse_iden_lit(ast, tokens, pos, parenDepth);
-        op = parse_op(ast, tokens, pos, parenDepth);
-        right = parse_iden_lit(ast, tokens, pos, parenDepth);
-    }
-
-    op->op.left = left;
-    op->op.right = right;
-
-    Token nextToken = next_token(tokens, pos, parenDepth);
-    while(nextToken.type != Token::SEPARATOR)
-    {
-        Expression* nextOp = parse_op(ast, tokens, pos, parenDepth);
-        nextOp->op.right = parse_iden_lit(ast, tokens, pos, parenDepth);
-
-        if(ORDER_OF_OPERATIONS.at(nextOp->op.op) <= ORDER_OF_OPERATIONS.at(op->op.op))
+        Expression* op = parse_op(ast, tokens, pos, parenDepth);
+        if(ORDER_OF_OPERATIONS.at(op->op.op) <= ORDER_OF_OPERATIONS.at(ops.top()->op.op))
         {
-            nextOp->op.left = op;
-            op = nextOp;
-        }
-        else
-        {
-            Expression* curOpParent = op;
-            Expression* curOp = op->op.left;
-            while(curOp->type == Expression::OPERATOR && ORDER_OF_OPERATIONS.at(curOp->op.op) < ORDER_OF_OPERATIONS.at(nextOp->op.op))
+            while(!ops.empty())
             {
-                curOpParent = curOpParent->op.left;
-                curOp = curOp->op.left;
-            }
+                Expression* evaledOp = ops.top(); ops.pop();
+                
+                evaledOp->op.right = nums.top(); nums.pop();
+                evaledOp->op.left = nums.top(); nums.pop();
 
-            nextOp->op.left = curOp;
-            curOpParent->op.left = nextOp;
+                nums.push(evaledOp);
+            }
         }
+
+        ops.push(op);
     }
 
-    pos--;
-    return op;
+    while(!ops.empty())
+    {
+        Expression* evaledOp = ops.top(); ops.pop();
+                
+        evaledOp->op.right = nums.top(); nums.pop();
+        evaledOp->op.left = nums.top(); nums.pop();
+
+        nums.push(evaledOp);
+    }
+
+    return nums.top();
 }
 
 //------------------------------------------------------
@@ -311,14 +295,32 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
 static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {
     Token token = next_token(tokens, pos, parenDepth);
-    if(token.type == Token::SEPARATOR && token.op == OPEN_PAREN)
+    if(token.type == Token::SEPARATOR && token.sep == OPEN_PAREN) //in parenthesis
     {
-        Expression exp;
-        exp.type = Expression::PAREN;
-        exp.paren.exp = parse_expression(ast, tokens, pos, parenDepth + 1);
+        Expression* exp = parse_expression(ast, tokens, pos, parenDepth + 1);
 
-        ast->expressionBuf.push_back(exp);
-        return &ast->expressionBuf.back();   
+        Token closeParen = next_token(tokens, pos, parenDepth + 1);
+        if(closeParen.type != Token::SEPARATOR || token.sep != CLOSE_PAREN)
+            throw new ParseErrorExpectedSeparator(closeParen.line, closeParen.charIdx);
+
+        return exp;   
+    }
+
+    if(token.type == Token::OPERATOR && token.op == SUB) //multiplying by -1
+    {
+        Expression minus1;
+        minus1.type = Expression::INT_LITERAL;
+        minus1.intLit.val = -1;
+        ast->expressionBuf.push_back(minus1);
+
+        Expression mult;
+        mult.type = Expression::OPERATOR;
+        mult.op.op = MULT;
+        mult.op.left = &ast->expressionBuf.back();
+        mult.op.right = parse_iden_lit(ast, tokens, pos, parenDepth);
+
+        ast->expressionBuf.push_back(mult);
+        return &ast->expressionBuf.back();
     }
 
     Expression exp;
@@ -349,7 +351,7 @@ static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& 
             exp.func.params = new Expression*[exp.func.numParams];
             memcpy(exp.func.params, params.data(), exp.func.numParams * sizeof(Expression*));
         }
-        else
+        else //variable
         {
             pos--;
 
