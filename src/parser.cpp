@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include <iostream>
+#include <string>
 #include <string.h>
 #include <stack>
 
@@ -8,21 +9,18 @@
 
 class ParseError : public std::exception 
 {
-private:
-    int32_t line;
-    int32_t charIdx;
-
 protected:
-    std::string get_position_str() const
-    {
-        return "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
-    }
+    std::string str;
 
 public:
-    ParseError(int32_t l, int32_t c) : std::exception()
+    ParseError(int32_t line, int32_t charIdx) : std::exception()
     {
-        l = line;
-        c = charIdx;
+        str = "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
+    }
+
+    const char* what() const noexcept override
+    {
+        return str.c_str();
     }
 };
 
@@ -30,51 +28,39 @@ public:
 //specific parse errors:
 
 class ParseErrorExpectedFunction : public ParseError 
-{ 
+{
 public:
-    ParseErrorExpectedFunction(int32_t l, int32_t c) : ParseError(l, c) { }
-    const char* what() const noexcept override { return (get_position_str() + "expected a function").c_str(); } 
+    ParseErrorExpectedFunction(int32_t l, int32_t c) : ParseError(l, c) { str += "expected a function"; }
 };
 
 class ParseErrorExpectedIdentifier : public ParseError 
 { 
 public:
-    ParseErrorExpectedIdentifier(int32_t l, int32_t c) : ParseError(l, c) { }
-    const char* what() const noexcept override { return (get_position_str() + "expected an identifier").c_str(); } 
+    ParseErrorExpectedIdentifier(int32_t l, int32_t c) : ParseError(l, c) { str += "expected an identifier"; }
 };
 
 class ParseErrorExpectedSeparator : public ParseError 
 { 
 public:
-    ParseErrorExpectedSeparator(int32_t l, int32_t c) : ParseError(l, c) { }
-    const char* what() const noexcept override { return (get_position_str() + "expected a separator").c_str(); } 
+    ParseErrorExpectedSeparator(int32_t l, int32_t c) : ParseError(l, c) { str += "expected a separator"; }
 };
 
 class ParseErrorExpectedOperator : public ParseError 
 { 
 public:
-    ParseErrorExpectedOperator(int32_t l, int32_t c) : ParseError(l, c) { }
-    const char* what() const noexcept override { return (get_position_str() + "expected an operator").c_str(); } 
+    ParseErrorExpectedOperator(int32_t l, int32_t c) : ParseError(l, c) { str += "expected an operator"; }
 };
 
 class ParseErrorFunctionRedef : public ParseError 
 {
-private:
-    std::string funcName;
-
 public:
-    ParseErrorFunctionRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { funcName = n; }
-    const char* what() const noexcept override { return (get_position_str() + "\"" + funcName + "\" function redefinition").c_str(); } 
+    ParseErrorFunctionRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { str += "\"" + n + "\" function redefinition"; }
 };
 
 class ParseErrorParamRedef : public ParseError 
 {
-private:
-    std::string paramName;
-
 public:
-    ParseErrorParamRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { paramName = n; }
-    const char* what() const noexcept override { return (get_position_str() + "\"" + paramName + "\" parameter redefinition").c_str(); } 
+    ParseErrorParamRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { str += "\"" + n + "\" parameter redefinition"; }
 };
 
 //------------------------------------------------------
@@ -125,8 +111,13 @@ AST* generate_ast(std::vector<Token>& tokens)
     AST* ast = new AST;
     size_t pos = 0;
     
+    remove_newline_tokens(tokens, pos);
+
     while(pos < tokens.size())
+    {
         ast->functions.push_back(parse_function(ast, tokens, pos));
+        remove_newline_tokens(tokens, pos);
+    }
 
     return ast;
 }

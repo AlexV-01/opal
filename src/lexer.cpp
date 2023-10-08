@@ -50,23 +50,27 @@ static int MIN_OP_LEN = sorted_operators().back().length();
 static int MAX_SEP_LEN = sorted_separators().front().length();
 static int MIN_SEP_LEN = sorted_separators().back().length();
 
-class LexError: public std::exception {
-private:
-    int32_t line;
-    int32_t charIdx;
+class LexError : public std::exception 
+{
 protected:
-    std::string get_position_str() const {
-        return "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
-    }
+    std::string str;
+
 public:
-    LexError() : std::exception() {}
-    LexError(int32_t l, int32_t c) : std::exception() {
-        l = line;
-        c = charIdx;
+    LexError(int32_t line, int32_t charIdx) : std::exception()
+    {
+        str = "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
     }
-    const char* what() const noexcept override {
-        return (get_position_str() + "syntax error").c_str();
+
+    const char* what() const noexcept override
+    {
+        return str.c_str();
     }
+};
+
+class LexErrorInvalidToken : public LexError
+{
+public:
+    LexErrorInvalidToken(int32_t l, int32_t c) : LexError(l, c) { str += "invalid token"; }
 };
 
 std::vector<Token> lex_file(std::string fileName) {
@@ -184,7 +188,7 @@ std::vector<Token> lex_file(std::string fileName) {
                 acc += file.get();
             }
             if (acc == ".") {
-                throw new LexError();
+                throw new LexErrorInvalidToken(0, 0);
             }
             if (is_int) {
                 list.push_back(Token(Token::Type::INT_LITERAL, std::stoi(acc)));
@@ -196,7 +200,7 @@ std::vector<Token> lex_file(std::string fileName) {
 
         // ANYTHING PAST THIS POINT IS AN IDENTIFIER
         if (!(std::isalpha(file.peek()) || file.peek() == '_')) {
-            throw new LexError();
+            throw new LexErrorInvalidToken(0, 0);
         } else {
             std::string acc = "";
             while (std::isalnum(file.peek()) || file.peek() == '_') {
