@@ -69,7 +69,7 @@ public:
     }
 };
 
-std::vector<Token> lex_file(std::string fileName) {
+std::vector<Token>& lex_file(std::string fileName) {
     std::vector<Token> list;
 
     std::ifstream file(fileName);
