@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
 
 //------------------------------------------------------
 //base runtime error:
@@ -217,33 +218,47 @@ struct Value
 //------------------------------------------------------
 
 Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast);
-Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value>& params, AST* ast);
+Value evaluate_expression(ExpressionHandle exp, const std::unordered_map<std::string, Value>& params, AST* ast);
 
 //------------------------------------------------------
 
-std::string run(AST* ast, const std::vector<std::string>& args)
+std::string run(AST* ast, std::vector<std::string> args)
 {
 	for (Function f : ast->functions)
 	{
 		if (f.name == "main")
 		{
 			std::vector<Value> values;
-			for (std::string param : f.params)
+			if (args.size() != f.params.size())
+				return "args size mismatch eror";
+
+			for (int i = 0; i < args.size(); i++)
 			{
 				try
 				{
-					std::stoi(param);
-					values.push_back(Value(std::stoi(param)));
+					std::stoi(args[i]);
+					values.push_back(Value(std::stoi(args[i])));
 				}
-				catch (std::string param)
+				catch (std::exception e)
 				{
-					values.push_back(Value(std::stof(param)));
+					values.push_back(Value(std::stof(args[i])));
 				}
 			}
-			evaluate_function(&f, values, ast);
+
+			Value result = evaluate_function(&f, values, ast);
+			switch (result.type)
+			{
+			case Value::FLOAT:
+				return std::to_string(result.floatVal);
+			case Value::INT:
+				return std::to_string(result.intVal);
+			case Value::BOOL:
+				return std::to_string(result.boolVal);
+			}
 		}
 	}
-	return "run";
+
+	return "unknown error";
 }
 
 //------------------------------------------------------
@@ -265,7 +280,7 @@ Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast
 	{
 		Value condResult = evaluate_expression(func->map[i].second, params, ast);
 		if(condResult.type != Value::BOOL)
-			throw new RuntimeErrorInvalidCondition(func->map[i].second->line, func->map[i].second->charIdx);
+			throw new RuntimeErrorInvalidCondition(ast->get_exp(func->map[i].second).line, ast->get_exp(func->map[i].second).charIdx);
 		
 		if(condResult.boolVal)
 			return evaluate_expression(func->map[i].first, params, ast);
@@ -274,16 +289,20 @@ Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast
 	return Value(0);
 }
 
-Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value>& params, AST* ast)
+Value evaluate_expression(ExpressionHandle exp, const std::unordered_map<std::string, Value>& params, AST* ast)
 {
-	switch(exp->type)
+	switch(ast->get_exp(exp).type)
 	{
 	case Expression::OPERATOR:
 	{
-		Value l = evaluate_expression(exp->op.left , params, ast);
-		Value r = evaluate_expression(exp->op.right, params, ast);
+		Value l, r;
+		if (ast->get_exp(exp).op.op != OTHERWISE)
+		{
+			l = evaluate_expression(ast->get_exp(exp).op.left, params, ast);
+			r = evaluate_expression(ast->get_exp(exp).op.right, params, ast);
+		}
 
-		switch(exp->op.op)
+		switch(ast->get_exp(exp).op.op)
 		{
 		case ADD:
 			return l + r;
@@ -310,42 +329,46 @@ Value evaluate_expression(Expression* exp, const std::unordered_map<std::string,
 		case OTHERWISE:
 			return Value(true);
 		default:
-			throw new RuntimeErrorInvalidOperator(exp->line, exp->charIdx);
+			throw new RuntimeErrorInvalidOperator(ast->get_exp(exp).line, ast->get_exp(exp).charIdx);
 		}
 	}
 	case Expression::FUNCTION:
 	{
-		if (std::find(ast->functions.begin(), ast->functions.end(), exp->func.name) == ast->functions.end())
-		{
-			throw new RuntimeErrorFuncNotFound(exp->func.name, exp->line, exp->charIdx);
-		}
-		Function* funct;
 		for (int i = 0; i < ast->functions.size(); i++)
 		{
-			if (ast->functions[i].name == exp->func.name)
+			if (ast->get_exp(exp).func.name == ast->functions[i].name)
 			{
-				funct = &ast->functions[i];
+				Function* funct;
+				for (int i = 0; i < ast->functions.size(); i++)
+				{
+					if (ast->functions[i].name == ast->get_exp(exp).func.name)
+					{
+						funct = &ast->functions[i];
+					}
+				}
+				std::vector<Value> values;
+				for (int i = 0; i < ast->get_exp(exp).func.numParams; i++)
+				{
+					values.push_back(evaluate_expression(ast->get_exp(exp).func.params[i], params, ast));
+				}
+				return evaluate_function(funct, values, ast);
 			}
 		}
-		std::vector<Value> values;
-		for (int i = 0; i < exp->func.numParams; i++) {
-			values.push_back(evaluate_expression(exp->func.params[i], params, ast));
-		}
-		return evaluate_function(funct, values, ast);
+		throw new RuntimeErrorFuncNotFound(ast->get_exp(exp).func.name, ast->get_exp(exp).line, ast->get_exp(exp).charIdx);
 	}
     case Expression::VARIABLE:
 	{
-		if (params.find(exp->var.name) == params.end())
+		if (params.find(ast->get_exp(exp).var.name) == params.end())
 		{
-			throw new RuntimeErrorInvalidVariable(exp->line, exp->charIdx);
+			throw new RuntimeErrorInvalidVariable(ast->get_exp(exp).line, ast->get_exp(exp).charIdx);
 		}
-		return params.at(exp->var.name);
+		return params.at(ast->get_exp(exp).var.name);
 	}
     case Expression::INT_LITERAL:
-		return Value(exp->intLit.val);
+		return Value(ast->get_exp(exp).intLit.val);
     case Expression::FLOAT_LITERAL:
-		return Value(exp->floatLit.val);
+		return Value(ast->get_exp(exp).floatLit.val);
 	default:
-		throw new RuntimeErrorInvalidExpression(exp->line, exp->charIdx);
+		throw new RuntimeErrorInvalidExpression(ast->get_exp(exp).line, ast->get_exp(exp).charIdx);
 	}
 }
