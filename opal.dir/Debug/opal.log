@@ -1,0 +1,5 @@
+﻿  parser.cpp
+C:\Dev\Projects\opal\src\parser.cpp(355,47): warning C4267: '=': conversion from 'size_t' to 'int32_t', possible loss of data
+C:\Dev\Projects\opal\src\parser.cpp(342,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+C:\Dev\Projects\opal\src\parser.cpp(365,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  opal.vcxproj -> C:\Dev\Projects\opal\bin\Debug\opal.exe

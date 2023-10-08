@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 #include "lexer.hpp"
+#include "parser.hpp"
 
 void print_tokens(std::vector<Token> tokens) {
 	for (Token t : tokens) {
@@ -25,6 +26,8 @@ int main()
 {
 
 	std::vector<Token> tokens = lex_file("testfile.txt");
+	AST* ast = generate_ast(tokens);
+
 	print_tokens(tokens);
 	//free_tokens(tokens);
 	return 0;

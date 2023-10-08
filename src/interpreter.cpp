@@ -1,4 +1,4 @@
-#include "interpreter.hpp"
+/*#include "interpreter.hpp"
 
 #include <unordered_map>
 
@@ -118,6 +118,7 @@ struct Value
 		}
 	}
 
+	Value()        { type = INT;   intVal   = 0; }
 	Value(int i)   { type = INT;   intVal   = i; }
 	Value(float f) { type = FLOAT; floatVal = f; }
 	Value(bool b)  { type = BOOL;  boolVal  = b; }
@@ -290,4 +291,4 @@ Value evaluate_expression(Expression* exp, const std::unordered_map<std::string,
 	default:
 		throw new RuntimeErrorInvalidExpression(exp->line, exp->charIdx);
 	}
-}
+}*/

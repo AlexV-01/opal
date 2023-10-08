@@ -4,6 +4,8 @@
 #include "syntax.hpp"
 #include <vector>
 
+typedef size_t ExpressionHandle;
+
 struct Expression
 {
     enum Type
@@ -21,15 +23,15 @@ struct Expression
         {
             Operator op;
             int32_t parenDepth;
-            Expression* left;
-            Expression* right;
+            ExpressionHandle left;
+            ExpressionHandle right;
         } op;
 
         struct
         {
             char* name;
             int32_t numParams;
-            Expression** params;
+            ExpressionHandle* params;
         } func;
 
         struct
@@ -61,15 +63,21 @@ struct Function
 {
     std::string name;
     std::vector<std::string> params;
-    std::vector<std::pair<Expression*, Expression*>> map;
+    std::vector<std::pair<ExpressionHandle, ExpressionHandle>> map;
 
     int32_t line;
 };
 
 struct AST
 {
-    std::vector<Function> functions;
+private:
     std::vector<Expression> expressionBuf;
+
+public:
+    std::vector<Function> functions;
+
+    Expression& get_exp(ExpressionHandle i) { return expressionBuf[i]; }
+    ExpressionHandle add_exp(Expression e) { expressionBuf.push_back(e); return expressionBuf.size() - 1; }
 };
 
 #endif
