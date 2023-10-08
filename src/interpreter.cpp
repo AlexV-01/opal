@@ -94,7 +94,7 @@ struct Value
 	union
 	{
 		float floatVal;
-		int intVal;
+		int64_t intVal;
 		bool boolVal;
 	};
 
@@ -113,23 +113,23 @@ struct Value
 		}
 	}
 
-	int get_int() const
+	int64_t get_int() const
 	{
 		switch(type)
 		{
 		case INT:
-			return (int)intVal;
+			return (int64_t)intVal;
 			break;
 		case BOOL:
-			return (int)boolVal;
+			return (int64_t)boolVal;
 			break;
 		case FLOAT:
-			return (int)floorf(floatVal);
+			return (int64_t)floorf(floatVal);
 		}
 	}
 
 	Value()        { type = INT;   intVal   = 0; }
-	Value(int i)   { type = INT;   intVal   = i; }
+	Value(int64_t i)   { type = INT;   intVal   = i; }
 	Value(float f) { type = FLOAT; floatVal = f; }
 	Value(bool b)  { type = BOOL;  boolVal  = b; }
 
@@ -202,7 +202,7 @@ struct Value
 	{
 		if(type != FLOAT && other.type != FLOAT)
 		{
-			int result = 1;
+			int64_t result = 1;
 			for(int i = 0; i < other.get_int(); i++)
 				result *= get_int();
 
@@ -237,7 +237,7 @@ std::string run(AST* ast, std::vector<std::string> args)
 				try
 				{
 					std::stoi(args[i]);
-					values.push_back(Value(std::stoi(args[i])));
+					values.push_back(Value((int64_t)std::stoi(args[i])));
 				}
 				catch (std::exception e)
 				{
@@ -286,7 +286,7 @@ Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast
 			return evaluate_expression(func->map[i].first, params, ast);
 	}
 
-	return Value(0);
+	return Value((int64_t)0);
 }
 
 Value evaluate_expression(ExpressionHandle exp, const std::unordered_map<std::string, Value>& params, AST* ast)
@@ -365,7 +365,7 @@ Value evaluate_expression(ExpressionHandle exp, const std::unordered_map<std::st
 		return params.at(ast->get_exp(exp).var.name);
 	}
     case Expression::INT_LITERAL:
-		return Value(ast->get_exp(exp).intLit.val);
+		return Value((int64_t) ast->get_exp(exp).intLit.val);
     case Expression::FLOAT_LITERAL:
 		return Value(ast->get_exp(exp).floatLit.val);
 	default:
