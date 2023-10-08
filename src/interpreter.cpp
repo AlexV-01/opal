@@ -1,6 +1,8 @@
 #include "interpreter.hpp"
+#include <math.h>
 
 #include <unordered_map>
+#include <algorithm>
 
 //------------------------------------------------------
 //base runtime error:
@@ -70,6 +72,13 @@ public:
     std::string what() { return get_position_str() + "invalid expression"; } 
 };
 
+class RuntimeErrorInvalidVariable : public RuntimeError
+{
+public:
+	RuntimeErrorInvalidVariable(int32_t l, int32_t c) : RuntimeError(l, c) { }
+	std::string what() { return get_position_str() + "invalid variable"; }
+};
+
 //------------------------------------------------------
 
 struct Value
@@ -128,7 +137,7 @@ struct Value
 		if(type == FLOAT || other.type == FLOAT)
 			return Value(get_scalar() + other.get_scalar());
 		else
-			return Value(get_int() + get_int());
+			return Value(get_int() + other.get_int());
 	}
 
 	Value operator-(const Value& other)
@@ -136,7 +145,7 @@ struct Value
 		if(type == FLOAT || other.type == FLOAT)
 			return Value(get_scalar() - other.get_scalar());
 		else
-			return Value(get_int() - get_int());
+			return Value(get_int() - other.get_int());
 	}
 
 	Value operator*(const Value& other)
@@ -144,7 +153,7 @@ struct Value
 		if(type == FLOAT || other.type == FLOAT)
 			return Value(get_scalar() * other.get_scalar());
 		else
-			return Value(get_int() * get_int());
+			return Value(get_int() * other.get_int());
 	}
 
 	Value operator/(const Value& other)
@@ -152,7 +161,7 @@ struct Value
 		if(type == FLOAT || other.type == FLOAT)
 			return Value(get_scalar() / other.get_scalar());
 		else
-			return Value(get_int() / get_int());
+			return Value(get_int() / other.get_int());
 	}
 
 	Value operator%(const Value& other)
@@ -160,7 +169,7 @@ struct Value
 		if(type == FLOAT || other.type == FLOAT)
 			return Value(fmodf(get_scalar(), other.get_scalar()));
 		else
-			return Value(get_int() % get_int());
+			return Value(get_int() % other.get_int());
 	}
 
 	Value operator==(const Value& other)
@@ -207,19 +216,39 @@ struct Value
 
 //------------------------------------------------------
 
-Value evaluate_function(Function* func, const std::vector<Value>& args);
-Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value> params);
+Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast);
+Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value>& params, AST* ast);
 
 //------------------------------------------------------
 
 std::string run(AST* ast, const std::vector<std::string>& args)
 {
+	for (Function f : ast->functions)
+	{
+		if (f.name == "main")
+		{
+			std::vector<Value> values;
+			for (std::string param : f.params)
+			{
+				try
+				{
+					std::stoi(param);
+					values.push_back(Value(std::stoi(param)));
+				}
+				catch (std::string param)
+				{
+					values.push_back(Value(std::stof(param)));
+				}
+			}
+			evaluate_function(&f, values, ast);
+		}
+	}
 	return "run";
 }
 
 //------------------------------------------------------
 
-Value evaluate_function(Function* func, const std::vector<Value>& args)
+Value evaluate_function(Function* func, const std::vector<Value>& args, AST* ast)
 {
 	//setup params:
 	//----------------
@@ -234,25 +263,25 @@ Value evaluate_function(Function* func, const std::vector<Value>& args)
 	//----------------
 	for(int i = 0; i < func->map.size(); i++)
 	{
-		Value condResult = evaluate_expression(func->map[i].second, params);
+		Value condResult = evaluate_expression(func->map[i].second, params, ast);
 		if(condResult.type != Value::BOOL)
 			throw new RuntimeErrorInvalidCondition(func->map[i].second->line, func->map[i].second->charIdx);
 		
 		if(condResult.boolVal)
-			return evaluate_expression(func->map[i].first, params);
+			return evaluate_expression(func->map[i].first, params, ast);
 	}
 
 	return Value(0);
 }
 
-Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value> params)
+Value evaluate_expression(Expression* exp, const std::unordered_map<std::string, Value>& params, AST* ast)
 {
 	switch(exp->type)
 	{
 	case Expression::OPERATOR:
 	{
-		Value l = evaluate_expression(exp->op.left , params);
-		Value r = evaluate_expression(exp->op.right, params);
+		Value l = evaluate_expression(exp->op.left , params, ast);
+		Value r = evaluate_expression(exp->op.right, params, ast);
 
 		switch(exp->op.op)
 		{
@@ -285,9 +314,37 @@ Value evaluate_expression(Expression* exp, const std::unordered_map<std::string,
 		}
 	}
 	case Expression::FUNCTION:
+	{
+		if (std::find(ast->functions.begin(), ast->functions.end(), exp->func.name) == ast->functions.end())
+		{
+			throw new RuntimeErrorFuncNotFound(exp->func.name, exp->line, exp->charIdx);
+		}
+		Function* funct;
+		for (int i = 0; i < ast->functions.size(); i++)
+		{
+			if (ast->functions[i].name == exp->func.name)
+			{
+				funct = &ast->functions[i];
+			}
+		}
+		std::vector<Value> values;
+		for (int i = 0; i < exp->func.numParams; i++) {
+			values.push_back(evaluate_expression(exp->func.params[i], params, ast));
+		}
+		return evaluate_function(funct, values, ast);
+	}
     case Expression::VARIABLE:
+	{
+		if (params.find(exp->var.name) == params.end())
+		{
+			throw new RuntimeErrorInvalidVariable(exp->line, exp->charIdx);
+		}
+		return params.at(exp->var.name);
+	}
     case Expression::INT_LITERAL:
+		return Value(exp->intLit.val);
     case Expression::FLOAT_LITERAL:
+		return Value(exp->floatLit.val);
 	default:
 		throw new RuntimeErrorInvalidExpression(exp->line, exp->charIdx);
 	}
