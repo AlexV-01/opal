@@ -84,7 +84,7 @@ inline static void remove_newline_tokens(std::vector<Token>& tokens, size_t& pos
 inline static Token next_token_keep_newline(std::vector<Token>& tokens, size_t& pos)
 {
     if(pos >= tokens.size())
-        return Token(Token::EMPTY);
+        return Token(Token::EMPTY, 0, 0);
     else
         return tokens[pos++];
 }
@@ -179,32 +179,32 @@ static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos
     //parse expressions:
     //----------------
     Token openBrace = next_token_skip_newline(tokens, pos);
-    if(openBrace.type != Token::SEPARATOR || openBrace.op != OPEN_CURLY)
+    if(openBrace.type != Token::SEPARATOR || openBrace.sep != OPEN_CURLY)
         throw new ParseErrorExpectedSeparator(openBrace.line, openBrace.charIdx);
     
     ExpressionHandle firstExp = parse_expression(ast, tokens, pos, 0);
     Token firstExpEnd = next_token_skip_newline(tokens, pos);
     if(firstExpEnd.type == Token::SEPARATOR && firstExpEnd.sep == CLOSE_CURLY) //single case function
     {
-        Expression otherwise;
+        Expression otherwise(firstExpEnd.line, firstExpEnd.charIdx);
         otherwise.type = Expression::OPERATOR;
         otherwise.op.op = OTHERWISE;
 
         func.map.push_back({firstExp, ast->add_exp(otherwise)});
     }
-    else if(firstExpEnd.type == Token::SEPARATOR && firstExpEnd.op == COLON) //multi case function
+    else if(firstExpEnd.type == Token::SEPARATOR && firstExpEnd.sep == COLON) //multi case function
     {
         ExpressionHandle firstCond = parse_expression(ast, tokens, pos, 0);
         func.map.push_back({firstExp, firstCond});
 
         Token end = next_token_skip_newline(tokens, pos);
-        while(end.type != Token::SEPARATOR || end.op != CLOSE_CURLY)
+        while(end.type != Token::SEPARATOR || end.sep != CLOSE_CURLY)
         {
             pos--;
             ExpressionHandle exp = parse_expression(ast, tokens, pos, 0);
 
             Token colon = next_token_skip_newline(tokens, pos);
-            if(colon.type != Token::SEPARATOR || colon.op != COLON)
+            if(colon.type != Token::SEPARATOR || colon.sep != COLON)
                 throw new ParseErrorExpectedSeparator(colon.line, colon.charIdx);
 
             ExpressionHandle cond = parse_expression(ast, tokens, pos, 0);
@@ -226,7 +226,7 @@ static ExpressionHandle parse_expression(AST* ast, std::vector<Token>& tokens, s
     Token nextToken = next_token(tokens, pos, parenDepth);
     if(nextToken.type == Token::OPERATOR && nextToken.op == OTHERWISE)
     {
-        Expression exp;
+        Expression exp(nextToken.line, nextToken.charIdx);
         exp.type = Expression::OPERATOR;
         exp.op.op = OTHERWISE;
 
@@ -296,12 +296,12 @@ static ExpressionHandle parse_iden_lit(AST* ast, std::vector<Token>& tokens, siz
 
     if(token.type == Token::OPERATOR && token.op == SUB) //multiplying by -1
     {
-        Expression minus1;
+        Expression minus1(token.line, token.charIdx);
         minus1.type = Expression::INT_LITERAL;
         minus1.intLit.val = -1;
         ExpressionHandle hMinus1 = ast->add_exp(minus1);
 
-        Expression mult;
+        Expression mult(token.line, token.charIdx);
         mult.type = Expression::OPERATOR;
         mult.op.op = MULT;
         mult.op.left = hMinus1;
@@ -310,7 +310,7 @@ static ExpressionHandle parse_iden_lit(AST* ast, std::vector<Token>& tokens, siz
         return ast->add_exp(mult);
     }
 
-    Expression exp;
+    Expression exp(token.line, token.charIdx);
     switch(token.type)
     {
     case Token::IDENTIFIER:
@@ -375,7 +375,7 @@ static ExpressionHandle parse_op(AST* ast, std::vector<Token>& tokens, size_t& p
     if(token.type != Token::OPERATOR || token.op == FN || token.op == OTHERWISE || token.op == OF)
         throw new ParseErrorExpectedOperator(token.line, token.charIdx);
 
-    Expression exp;
+    Expression exp(token.line, token.charIdx);
     exp.type = Expression::OPERATOR;
     exp.op.op = token.op;
 

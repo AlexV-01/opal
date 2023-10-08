@@ -52,6 +52,12 @@ struct Expression
 
     int32_t line;
     int32_t charIdx;
+
+    Expression(int32_t l, int32_t c)
+    {
+        line = l;
+        charIdx = c;
+    }
 };
 
 struct Function

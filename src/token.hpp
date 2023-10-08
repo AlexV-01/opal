@@ -31,12 +31,12 @@ struct Token
 	int32_t line;
 	int32_t charIdx;
 
-	Token(Type type, Operator op);
-	Token(Type type, char* iden);
-	Token(Type type, Separator sep);
-	Token(Type type, int32_t intLit);
-	Token(Type type, float floatLit);
-	Token(Type type);
+	Token(Type type, Operator op   , int32_t line, int32_t charIdx);
+	Token(Type type, char* iden    , int32_t line, int32_t charIdx);
+	Token(Type type, Separator sep , int32_t line, int32_t charIdx);
+	Token(Type type, int32_t intLit, int32_t line, int32_t charIdx);
+	Token(Type type, float floatLit, int32_t line, int32_t charIdx);
+	Token(Type type                , int32_t line, int32_t charIdx);
 };
 
 #endif
