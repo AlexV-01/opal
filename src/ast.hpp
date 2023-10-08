@@ -69,4 +69,10 @@ struct AST
     std::vector<Expression> expressionBuf;
 };
 
+struct SingleAST
+{
+    Expression* entry;
+    std::vector<Expression> expressionBuf;
+};
+
 #endif

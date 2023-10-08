@@ -2,3 +2,4 @@ bin/
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
+[Bb]uild/
