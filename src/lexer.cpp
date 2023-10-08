@@ -128,11 +128,11 @@ std::vector<Token> lex_file(std::string fileName) {
             for (std::string op : sorted_operators()) {
                 if (op == buffrange) {
                     list.push_back(Token(Token::OPERATOR, OPERATORS.at(op)));
-                    file.seekg(oldpos + op.length(), std::ios::_Seekbeg);
+                    file.seekg(oldpos + op.length(), std::ios_base::beg);
                     goto beginning;
                 }
             }
-            file.seekg(oldpos, std::ios::_Seekbeg);
+            file.seekg(oldpos, std::ios_base::beg);
             free(bufstr);
             i--;
         }
@@ -151,11 +151,11 @@ std::vector<Token> lex_file(std::string fileName) {
             for (std::string sep : sorted_separators()) {
                 if (sep == buffrange) {
                     list.push_back(Token(Token::SEPARATOR, SEPARATORS.at(sep)));
-                    file.seekg(oldpos + sep.length(), std::ios::_Seekbeg);
+                    file.seekg(oldpos + sep.length(), std::ios_base::beg);
                     goto beginning;
                 }
             }
-            file.seekg(oldpos, std::ios::_Seekbeg);
+            file.seekg(oldpos, std::ios_base::beg);
             free(bufstr);
             i--;
         }
