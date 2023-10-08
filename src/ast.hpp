@@ -46,11 +46,6 @@ struct Expression
         {
             float val;
         } floatLit;
-
-        struct
-        {
-            Expression* exp;
-        } paren;
     };
 
     int32_t line;
