@@ -27,9 +27,9 @@ int main(int argc, char *argv[])
 		free_ast(ast);
 		free_tokens(tokens);
 	}
-	catch(std::exception e)
+	catch(std::exception *e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cout << e->what() << std::endl;
 	}
 
 	return 0;
