@@ -15,7 +15,7 @@ private:
     int32_t charIdx;
 
 protected:
-    std::string get_position_str()
+    std::string get_position_str() const
     {
         return "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
     }
@@ -38,7 +38,7 @@ private:
 
 public:
     RuntimeErrorFuncNotFound(std::string n, int32_t l, int32_t c) : RuntimeError(l, c) { name = n; }
-    std::string what() { return get_position_str() + "no function \"" + name + "\" found"; } 
+    const char* what() const noexcept override { return (get_position_str() + "no function \"" + name + "\" found").c_str(); } 
 };
 
 class RuntimeErrorIncorrectNumArgs : public RuntimeError 
@@ -49,35 +49,35 @@ private:
 
 public:
     RuntimeErrorIncorrectNumArgs(std::string i, int32_t n, int32_t l, int32_t c) : RuntimeError(l, c) { name = i; num = n; }
-    std::string what() { return get_position_str() + "no overload of function \"" + name + "\" takes " + std::to_string(num) + " arguments"; } 
+    const char* what() const noexcept override { return (get_position_str() + "no overload of function \"" + name + "\" takes " + std::to_string(num) + " arguments").c_str(); } 
 };
 
 class RuntimeErrorInvalidCondition : public RuntimeError
 {
 public:
     RuntimeErrorInvalidCondition(int32_t l, int32_t c) : RuntimeError(l, c) { }
-    std::string what() { return get_position_str() + "invalid condition"; } 
+    const char* what() const noexcept override { return (get_position_str() + "invalid condition").c_str(); } 
 };
 
 class RuntimeErrorInvalidOperator : public RuntimeError
 {
 public:
     RuntimeErrorInvalidOperator(int32_t l, int32_t c) : RuntimeError(l, c) { }
-    std::string what() { return get_position_str() + "invalid operator"; } 
+    const char* what() const noexcept override { return (get_position_str() + "invalid operator").c_str(); } 
 };
 
 class RuntimeErrorInvalidExpression : public RuntimeError
 {
 public:
     RuntimeErrorInvalidExpression(int32_t l, int32_t c) : RuntimeError(l, c) { }
-    std::string what() { return get_position_str() + "invalid expression"; } 
+    const char* what() const noexcept override { return (get_position_str() + "invalid expression").c_str(); } 
 };
 
 class RuntimeErrorInvalidVariable : public RuntimeError
 {
 public:
 	RuntimeErrorInvalidVariable(int32_t l, int32_t c) : RuntimeError(l, c) { }
-	std::string what() { return get_position_str() + "invalid variable"; }
+	const char* what() const noexcept override { return (get_position_str() + "invalid variable").c_str(); }
 };
 
 //------------------------------------------------------

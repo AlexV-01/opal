@@ -55,7 +55,7 @@ private:
     int32_t line;
     int32_t charIdx;
 protected:
-    std::string get_position_str() {
+    std::string get_position_str() const {
         return "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
     }
 public:
@@ -64,8 +64,8 @@ public:
         l = line;
         c = charIdx;
     }
-    std::string what() {
-        return get_position_str() + "syntax error";
+    const char* what() const noexcept override {
+        return (get_position_str() + "syntax error").c_str();
     }
 };
 

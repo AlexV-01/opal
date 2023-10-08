@@ -13,7 +13,7 @@ private:
     int32_t charIdx;
 
 protected:
-    std::string get_position_str()
+    std::string get_position_str() const
     {
         return "line " + std::to_string(line) + ":" + std::to_string(charIdx) + " - ";
     }
@@ -33,28 +33,28 @@ class ParseErrorExpectedFunction : public ParseError
 { 
 public:
     ParseErrorExpectedFunction(int32_t l, int32_t c) : ParseError(l, c) { }
-    std::string what() { return get_position_str() + "expected a function"; } 
+    const char* what() const noexcept override { return (get_position_str() + "expected a function").c_str(); } 
 };
 
 class ParseErrorExpectedIdentifier : public ParseError 
 { 
 public:
     ParseErrorExpectedIdentifier(int32_t l, int32_t c) : ParseError(l, c) { }
-    std::string what() { return get_position_str() + "expected an identifier"; } 
+    const char* what() const noexcept override { return (get_position_str() + "expected an identifier").c_str(); } 
 };
 
 class ParseErrorExpectedSeparator : public ParseError 
 { 
 public:
     ParseErrorExpectedSeparator(int32_t l, int32_t c) : ParseError(l, c) { }
-    std::string what() { return get_position_str() + "expected a separator"; } 
+    const char* what() const noexcept override { return (get_position_str() + "expected a separator").c_str(); } 
 };
 
 class ParseErrorExpectedOperator : public ParseError 
 { 
 public:
     ParseErrorExpectedOperator(int32_t l, int32_t c) : ParseError(l, c) { }
-    std::string what() { return get_position_str() + "expected an operator"; } 
+    const char* what() const noexcept override { return (get_position_str() + "expected an operator").c_str(); } 
 };
 
 class ParseErrorFunctionRedef : public ParseError 
@@ -64,7 +64,7 @@ private:
 
 public:
     ParseErrorFunctionRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { funcName = n; }
-    std::string what() { return get_position_str() + "\"" + funcName + "\" function redefinition"; } 
+    const char* what() const noexcept override { return (get_position_str() + "\"" + funcName + "\" function redefinition").c_str(); } 
 };
 
 class ParseErrorParamRedef : public ParseError 
@@ -74,7 +74,7 @@ private:
 
 public:
     ParseErrorParamRedef(std::string n, int32_t l, int32_t c) : ParseError(l, c) { paramName = n; }
-    std::string what() { return get_position_str() + "\"" + paramName + "\" parameter redefinition"; } 
+    const char* what() const noexcept override { return (get_position_str() + "\"" + paramName + "\" parameter redefinition").c_str(); } 
 };
 
 //------------------------------------------------------
