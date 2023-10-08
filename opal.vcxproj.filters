@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Dev\Projects\opal\src\interpreter.cpp">
+    <ClCompile Include="C:\Users\Alex\Desktop\opal\src\interpreter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Dev\Projects\opal\src\lexer.cpp">
+    <ClCompile Include="C:\Users\Alex\Desktop\opal\src\lexer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Dev\Projects\opal\src\main.cpp">
+    <ClCompile Include="C:\Users\Alex\Desktop\opal\src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Dev\Projects\opal\src\parser.cpp">
+    <ClCompile Include="C:\Users\Alex\Desktop\opal\src\parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Dev\Projects\opal\src\token.cpp">
+    <ClCompile Include="C:\Users\Alex\Desktop\opal\src\token.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Dev\Projects\opal\CMakeLists.txt" />
+    <CustomBuild Include="C:\Users\Alex\Desktop\opal\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{42AAFEF9-E225-3D94-AD55-19209537F9D4}</UniqueIdentifier>
+      <UniqueIdentifier>{78D6EAA4-1196-3EF2-9650-5803BDB23111}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

@@ -1,15 +1,7 @@
-﻿  interpreter.cpp
-  lexer.cpp
-C:\Dev\Projects\opal\src\lexer.cpp(47,60): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Dev\Projects\opal\src\lexer.cpp(48,59): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Dev\Projects\opal\src\lexer.cpp(50,62): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Dev\Projects\opal\src\lexer.cpp(51,61): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Dev\Projects\opal\src\lexer.cpp(200,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  main.cpp
-  parser.cpp
-C:\Dev\Projects\opal\src\parser.cpp(374,47): warning C4267: '=': conversion from 'size_t' to 'int32_t', possible loss of data
-C:\Dev\Projects\opal\src\parser.cpp(360,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-C:\Dev\Projects\opal\src\parser.cpp(384,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-  token.cpp
-  Generating Code...
-  opal.vcxproj -> C:\Dev\Projects\opal\bin\Debug\opal.exe
+﻿  lexer.cpp
+C:\Users\Alex\Desktop\opal\src\lexer.cpp(47,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Alex\Desktop\opal\src\lexer.cpp(48,23): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Alex\Desktop\opal\src\lexer.cpp(50,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Alex\Desktop\opal\src\lexer.cpp(51,24): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Alex\Desktop\opal\src\lexer.cpp(206,13): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  opal.vcxproj -> C:\Users\Alex\Desktop\opal\bin\Debug\opal.exe

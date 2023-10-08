@@ -2,10 +2,10 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Dev\Projects\opal\x64\Debug\ZERO_CHECK</FullPath>
+      <FullPath>C:\Users\Alex\Desktop\opal\x64\Debug\ZERO_CHECK</FullPath>
     </ProjectOutput>
     <ProjectOutput>
-      <FullPath>C:\Dev\Projects\opal\bin\Debug\opal.exe</FullPath>
+      <FullPath>C:\Users\Alex\Desktop\opal\bin\Debug\opal.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />
