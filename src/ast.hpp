@@ -2,6 +2,7 @@
 #define OPAL_AST_H
 
 #include "syntax.hpp"
+#include <vector>
 
 struct Expression
 {

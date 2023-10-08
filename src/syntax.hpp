@@ -59,11 +59,17 @@ const std::unordered_map<std::string, Separator> SEPARATORS = {
 };
 
 const std::unordered_map<Operator, int32_t> ORDER_OF_OPERATIONS = {
-    {ADD, 0},
-    {SUB, 0},
-    {MULT, 1},
-    {DIV, 1},
-    {MOD, 1}
+    {ADD, 1},
+    {SUB, 1},
+    {MULT, 2},
+    {DIV, 2},
+    {MOD, 2},
+    {EQUALITY, 0},
+    {GREATER, 0},
+    {LESS, 0},
+    {GREATEREQ, 0},
+    {LESSEQ, 0},
+    {EXP, 3}
 };
 
 #endif
