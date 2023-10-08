@@ -3,6 +3,6 @@
 
 #include "ast.hpp"
 
-std::string run(AST* ast, std::string arg);
+std::string run(AST* ast, std::vector<std::string> args);
 
 #endif
