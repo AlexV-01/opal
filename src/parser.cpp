@@ -78,6 +78,7 @@ public:
 };
 
 //------------------------------------------------------
+//static func declarations:
 
 static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos);
 static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
@@ -86,6 +87,7 @@ static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& 
 static Expression* parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
 
 //------------------------------------------------------
+//helper func definitions:
 
 inline static void remove_newline_tokens(std::vector<Token>& tokens, size_t& pos)
 {
@@ -116,6 +118,7 @@ inline static Token next_token(std::vector<Token>& tokens, size_t& pos, int32_t 
 }
 
 //------------------------------------------------------
+//non-static func definitions:
 
 AST* generate_ast(std::vector<Token>& tokens)
 {
@@ -145,30 +148,7 @@ void free_ast(AST* ast)
 }
 
 //------------------------------------------------------
-
-SingleAST* generate_single_expression_ast(std::vector<Token>& tokens)
-{
-    AST* ast = new AST;
-
-    size_t pos = 0;
-    Expression* entry = parse_expression(ast, tokens, pos, 0);
-    
-    SingleAST* single = new SingleAST;
-    single->expressionBuf = ast->expressionBuf;
-    single->entry = entry;
-
-    delete ast;
-
-    return single;
-}
-
-void free_single_expression_ast(SingleAST* ast)
-{
-    //TODO: free strings + arrays
-    delete ast;
-}
-
-//------------------------------------------------------
+//static func definitions:
 
 static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos)
 {
@@ -315,6 +295,7 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
 }
 
 //------------------------------------------------------
+//static func definitions:
 
 static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {

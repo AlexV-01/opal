@@ -12,8 +12,7 @@ struct Expression
         FUNCTION,
         VARIABLE,
         INT_LITERAL,
-        FLOAT_LITERAL,
-        PAREN
+        FLOAT_LITERAL
     } type;
 
     union
@@ -53,6 +52,9 @@ struct Expression
             Expression* exp;
         } paren;
     };
+
+    int32_t line;
+    int32_t charIdx;
 };
 
 struct Function
@@ -67,12 +69,6 @@ struct Function
 struct AST
 {
     std::vector<Function> functions;
-    std::vector<Expression> expressionBuf;
-};
-
-struct SingleAST
-{
-    Expression* entry;
     std::vector<Expression> expressionBuf;
 };
 
