@@ -1,13 +1,5 @@
-fn game of x y z { 
-        
-
-
-
-
-
-        6 : z<9  ?Hello friends!!!!
-	4.1 : x + y > 8    
-	5 : otherwise ? test comment!  
-   
-
+fn fib of n {
+	0 : n = 0
+	1 : n = 1
+	fib(n-1) + fib(n-2) : otherwise
 }
