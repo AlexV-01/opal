@@ -1,4 +1,4 @@
-/*#include "interpreter.hpp"
+#include "interpreter.hpp"
 
 #include <unordered_map>
 
@@ -291,4 +291,4 @@ Value evaluate_expression(Expression* exp, const std::unordered_map<std::string,
 	default:
 		throw new RuntimeErrorInvalidExpression(exp->line, exp->charIdx);
 	}
-}*/
+}
