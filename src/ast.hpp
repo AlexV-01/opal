@@ -2,6 +2,7 @@
 #define OPAL_AST_H
 
 #include "syntax.hpp"
+#include <vector>
 
 struct Expression
 {
@@ -66,6 +67,12 @@ struct Function
 struct AST
 {
     std::vector<Function> functions;
+    std::vector<Expression> expressionBuf;
+};
+
+struct SingleAST
+{
+    Expression* entry;
     std::vector<Expression> expressionBuf;
 };
 

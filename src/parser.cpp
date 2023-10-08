@@ -117,7 +117,7 @@ inline static Token next_token(std::vector<Token>& tokens, size_t& pos, int32_t 
 
 //------------------------------------------------------
 
-AST* parse_tokens(std::vector<Token>& tokens)
+AST* generate_ast(std::vector<Token>& tokens)
 {
     AST* ast = new AST;
     size_t pos;
@@ -139,6 +139,30 @@ AST* parse_tokens(std::vector<Token>& tokens)
 }
 
 void free_ast(AST* ast)
+{
+    //TODO: free strings + arrays
+    delete ast;
+}
+
+//------------------------------------------------------
+
+SingleAST* generate_single_expression_ast(std::vector<Token>& tokens)
+{
+    AST* ast = new AST;
+
+    size_t pos = 0;
+    Expression* entry = parse_expression(ast, tokens, pos, 0);
+    
+    SingleAST* single = new SingleAST;
+    single->expressionBuf = ast->expressionBuf;
+    single->entry = entry;
+
+    delete ast;
+
+    return single;
+}
+
+void free_single_expression_ast(SingleAST* ast)
 {
     //TODO: free strings + arrays
     delete ast;

@@ -7,7 +7,7 @@
 
 struct Token
 {
-	enum TokenTypes
+	enum Type
 	{  
 		OPERATOR,
 		IDENTIFIER,
@@ -31,11 +31,12 @@ struct Token
 	int32_t line;
 	int32_t charIdx;
 
-	Token(TokenTypes type, Operator op);
-	Token(TokenTypes type, char* iden);
-	Token(TokenTypes type, Separator sep);
-	Token(TokenTypes type, int32_t intLit);
-	Token(TokenTypes type, float floatLit);
+	Token(Type type, Operator op);
+	Token(Type type, char* iden);
+	Token(Type type, Separator sep);
+	Token(Type type, int32_t intLit);
+	Token(Type type, float floatLit);
+	Token(Type type);
 };
 
 #endif

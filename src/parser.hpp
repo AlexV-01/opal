@@ -5,7 +5,10 @@
 #include "token.hpp"
 #include <vector>
 
-AST* parse_tokens(std::vector<Token>& tokens);
+AST* generate_ast(std::vector<Token>& tokens);
 void free_ast(AST* ast);
+
+SingleAST* generate_single_expression_ast(std::vector<Token>& tokens);
+void free_single_expression_ast(SingleAST* expression);
 
 #endif
