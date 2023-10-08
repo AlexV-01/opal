@@ -126,17 +126,7 @@ AST* generate_ast(std::vector<Token>& tokens)
     size_t pos = 0;
     
     while(pos < tokens.size())
-    {
-        try
-        {
-            ast->functions.push_back(parse_function(ast, tokens, pos));
-        }
-        catch(ParseError error)
-        {
-            //TODO: proper error logging:
-            std::cout << "opal parse error - " << error.what() << std::endl;
-        }
-    }
+        ast->functions.push_back(parse_function(ast, tokens, pos));
 
     return ast;
 }
