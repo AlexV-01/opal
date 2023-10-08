@@ -81,10 +81,10 @@ public:
 //static func declarations:
 
 static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos);
-static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
+static ExpressionHandle parse_expression(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
 
-static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
-static Expression* parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
+static ExpressionHandle parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
+static ExpressionHandle parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth);
 
 //------------------------------------------------------
 //helper func definitions:
@@ -123,20 +123,10 @@ inline static Token next_token(std::vector<Token>& tokens, size_t& pos, int32_t 
 AST* generate_ast(std::vector<Token>& tokens)
 {
     AST* ast = new AST;
-    size_t pos;
+    size_t pos = 0;
     
     while(pos < tokens.size())
-    {
-        try
-        {
-            ast->functions.push_back(parse_function(ast, tokens, pos));
-        }
-        catch(ParseError error)
-        {
-            //TODO: proper error logging:
-            std::cout << "opal parse error - " << error.what() << std::endl;
-        }
-    }
+        ast->functions.push_back(parse_function(ast, tokens, pos));
 
     return ast;
 }
@@ -187,6 +177,7 @@ static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos
                     throw new ParseErrorParamRedef(func.params[i].c_str(), param.line, param.charIdx);
             
             func.params.push_back(std::string(param.iden));
+            param = next_token_skip_newline(tokens, pos);
         }
 
         pos--;
@@ -200,7 +191,7 @@ static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos
     if(openBrace.type != Token::SEPARATOR || openBrace.op != OPEN_CURLY)
         throw new ParseErrorExpectedSeparator(openBrace.line, openBrace.charIdx);
     
-    Expression* firstExp = parse_expression(ast, tokens, pos, 0);
+    ExpressionHandle firstExp = parse_expression(ast, tokens, pos, 0);
     Token firstExpEnd = next_token_skip_newline(tokens, pos);
     if(firstExpEnd.type == Token::SEPARATOR && firstExpEnd.sep == CLOSE_CURLY) //single case function
     {
@@ -208,26 +199,27 @@ static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos
         otherwise.type = Expression::OPERATOR;
         otherwise.op.op = OTHERWISE;
 
-        ast->expressionBuf.push_back(otherwise);
-        func.map.push_back({firstExp, &ast->expressionBuf.back()});
+        func.map.push_back({firstExp, ast->add_exp(otherwise)});
     }
     else if(firstExpEnd.type == Token::SEPARATOR && firstExpEnd.op == COLON) //multi case function
     {
-        Expression* firstCond = parse_expression(ast, tokens, pos, 0);
+        ExpressionHandle firstCond = parse_expression(ast, tokens, pos, 0);
         func.map.push_back({firstExp, firstCond});
 
         Token end = next_token_skip_newline(tokens, pos);
         while(end.type != Token::SEPARATOR || end.op != CLOSE_CURLY)
         {
-            Expression* exp = parse_expression(ast, tokens, pos, 0);
+            pos--;
+            ExpressionHandle exp = parse_expression(ast, tokens, pos, 0);
 
             Token colon = next_token_skip_newline(tokens, pos);
             if(colon.type != Token::SEPARATOR || colon.op != COLON)
                 throw new ParseErrorExpectedSeparator(colon.line, colon.charIdx);
 
-            Expression* cond = parse_expression(ast, tokens, pos, 0);
+            ExpressionHandle cond = parse_expression(ast, tokens, pos, 0);
 
             func.map.push_back({exp, cond});
+            end = next_token_skip_newline(tokens, pos);
         }
     }
     else
@@ -236,8 +228,10 @@ static Function parse_function(AST* ast, std::vector<Token>& tokens, size_t& pos
     return func;
 } 
 
-static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
+static ExpressionHandle parse_expression(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {
+    remove_newline_tokens(tokens, pos);
+
     Token nextToken = next_token(tokens, pos, parenDepth);
     if(nextToken.type == Token::OPERATOR && nextToken.op == OTHERWISE)
     {
@@ -245,34 +239,32 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
         exp.type = Expression::OPERATOR;
         exp.op.op = OTHERWISE;
 
-        ast->expressionBuf.push_back(exp);
-        return &ast->expressionBuf.back();
+        return ast->add_exp(exp);
     }
     else
         pos--;
 
     //shunting yard:
-    std::stack<Expression*> nums;
-    std::stack<Expression*> ops;
+    std::stack<ExpressionHandle> nums;
+    std::stack<ExpressionHandle> ops;
 
     while(true)
     {
         nums.push(parse_iden_lit(ast, tokens, pos, parenDepth));
         
-        Token nextToken = next_token(tokens, pos, parenDepth);
+        Token nextToken = next_token(tokens, pos, parenDepth); pos--;
         if(nextToken.type != Token::OPERATOR)
             break;
-        pos--;
 
-        Expression* op = parse_op(ast, tokens, pos, parenDepth);
-        if(ORDER_OF_OPERATIONS.at(op->op.op) <= ORDER_OF_OPERATIONS.at(ops.top()->op.op))
+        ExpressionHandle op = parse_op(ast, tokens, pos, parenDepth);
+        if(!ops.empty() && ORDER_OF_OPERATIONS.at(ast->get_exp(op).op.op) <= ORDER_OF_OPERATIONS.at(ast->get_exp(ops.top()).op.op))
         {
             while(!ops.empty())
             {
-                Expression* evaledOp = ops.top(); ops.pop();
+                ExpressionHandle evaledOp = ops.top(); ops.pop();
                 
-                evaledOp->op.right = nums.top(); nums.pop();
-                evaledOp->op.left = nums.top(); nums.pop();
+                ast->get_exp(evaledOp).op.right = nums.top(); nums.pop();
+                ast->get_exp(evaledOp).op.left = nums.top(); nums.pop();
 
                 nums.push(evaledOp);
             }
@@ -283,10 +275,10 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
 
     while(!ops.empty())
     {
-        Expression* evaledOp = ops.top(); ops.pop();
+        ExpressionHandle evaledOp = ops.top(); ops.pop();
                 
-        evaledOp->op.right = nums.top(); nums.pop();
-        evaledOp->op.left = nums.top(); nums.pop();
+        ast->get_exp(evaledOp).op.right = nums.top(); nums.pop();
+        ast->get_exp(evaledOp).op.left = nums.top(); nums.pop();
 
         nums.push(evaledOp);
     }
@@ -297,12 +289,12 @@ static Expression* parse_expression(AST* ast, std::vector<Token>& tokens, size_t
 //------------------------------------------------------
 //static func definitions:
 
-static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
+static ExpressionHandle parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {
     Token token = next_token(tokens, pos, parenDepth);
     if(token.type == Token::SEPARATOR && token.sep == OPEN_PAREN) //in parenthesis
     {
-        Expression* exp = parse_expression(ast, tokens, pos, parenDepth + 1);
+        ExpressionHandle exp = parse_expression(ast, tokens, pos, parenDepth + 1);
 
         Token closeParen = next_token(tokens, pos, parenDepth + 1);
         if(closeParen.type != Token::SEPARATOR || token.sep != CLOSE_PAREN)
@@ -316,16 +308,15 @@ static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& 
         Expression minus1;
         minus1.type = Expression::INT_LITERAL;
         minus1.intLit.val = -1;
-        ast->expressionBuf.push_back(minus1);
+        ExpressionHandle hMinus1 = ast->add_exp(minus1);
 
         Expression mult;
         mult.type = Expression::OPERATOR;
         mult.op.op = MULT;
-        mult.op.left = &ast->expressionBuf.back();
+        mult.op.left = hMinus1;
         mult.op.right = parse_iden_lit(ast, tokens, pos, parenDepth);
 
-        ast->expressionBuf.push_back(mult);
-        return &ast->expressionBuf.back();
+        return ast->add_exp(mult);
     }
 
     Expression exp;
@@ -337,33 +328,34 @@ static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& 
         if(nextToken.type == Token::SEPARATOR && nextToken.sep == OPEN_PAREN) //function
         {
             exp.type = Expression::FUNCTION;
-            exp.func.name = new char[strlen(nextToken.iden)];
-            strcpy(exp.var.name, nextToken.iden);
+            exp.func.name = new char[strlen(token.iden)];
+            strcpy(exp.var.name, token.iden);
 
-            std::vector<Expression*> params;
-            nextToken = next_token(tokens, pos, parenDepth + 1);
+            std::vector<ExpressionHandle> params;
 
             while(nextToken.type != Token::SEPARATOR || nextToken.sep != CLOSE_PAREN)
             {
                 params.push_back(parse_expression(ast, tokens, pos, parenDepth + 1));
                 nextToken = next_token(tokens, pos, parenDepth + 1);
 
-                if(nextToken.type != Token::SEPARATOR || (nextToken.type != CLOSE_PAREN && nextToken.type != COMMA))
+                if(nextToken.type != Token::SEPARATOR || (nextToken.sep != CLOSE_PAREN && nextToken.sep != COMMA))
                     throw new ParseErrorExpectedSeparator(nextToken.line, nextToken.charIdx);
             }
 
             exp.func.numParams = params.size();
-            exp.func.params = new Expression*[exp.func.numParams];
-            memcpy(exp.func.params, params.data(), exp.func.numParams * sizeof(Expression*));
+            exp.func.params = new ExpressionHandle[exp.func.numParams];
+            memcpy(exp.func.params, params.data(), exp.func.numParams * sizeof(ExpressionHandle));
         }
         else //variable
         {
             pos--;
 
             exp.type = Expression::VARIABLE;
-            exp.var.name = new char[strlen(nextToken.iden)];
-            strcpy(exp.var.name, nextToken.iden);
+            exp.var.name = new char[strlen(token.iden)];
+            strcpy(exp.var.name, token.iden);
         }
+
+        break;
     }
     case Token::INT_LITERAL:
     {
@@ -383,11 +375,10 @@ static Expression* parse_iden_lit(AST* ast, std::vector<Token>& tokens, size_t& 
         throw new ParseErrorExpectedIdentifier(token.line, token.charIdx);
     }
 
-    ast->expressionBuf.push_back(exp);
-    return &ast->expressionBuf.back();
+    return ast->add_exp(exp);
 }
 
-static Expression* parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
+static ExpressionHandle parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {
     Token token = next_token(tokens, pos, parenDepth);
     if(token.type != Token::OPERATOR || token.op == FN || token.op == OTHERWISE || token.op == OF)
@@ -397,6 +388,5 @@ static Expression* parse_op(AST* ast, std::vector<Token>& tokens, size_t& pos, i
     exp.type = Expression::OPERATOR;
     exp.op.op = token.op;
 
-    ast->expressionBuf.push_back(exp);
-    return &ast->expressionBuf.back();
+    return ast->add_exp(exp);
 }

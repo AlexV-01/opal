@@ -127,6 +127,7 @@ struct Value
 		}
 	}
 
+	Value()        { type = INT;   intVal   = 0; }
 	Value(int i)   { type = INT;   intVal   = i; }
 	Value(float f) { type = FLOAT; floatVal = f; }
 	Value(bool b)  { type = BOOL;  boolVal  = b; }
