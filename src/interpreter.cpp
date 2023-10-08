@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include <algorithm>
+#include <iostream>
 
 //------------------------------------------------------
 //base runtime error:
@@ -228,16 +229,19 @@ std::string run(AST* ast, std::vector<std::string> args)
 		if (f.name == "main")
 		{
 			std::vector<Value> values;
-			for (std::string param : f.params)
+			if (args.size() != f.params.size())
+				return "args size mismatch eror";
+
+			for (int i = 0; i < args.size(); i++)
 			{
 				try
 				{
-					std::stoi(param);
-					values.push_back(Value(std::stoi(param)));
+					std::stoi(args[i]);
+					values.push_back(Value(std::stoi(args[i])));
 				}
-				catch (std::string param)
+				catch (std::exception e)
 				{
-					values.push_back(Value(std::stof(param)));
+					values.push_back(Value(std::stof(args[i])));
 				}
 			}
 
@@ -291,8 +295,12 @@ Value evaluate_expression(ExpressionHandle exp, const std::unordered_map<std::st
 	{
 	case Expression::OPERATOR:
 	{
-		Value l = evaluate_expression(ast->get_exp(exp).op.left, params, ast);
-		Value r = evaluate_expression(ast->get_exp(exp).op.right, params, ast);
+		Value l, r;
+		if (ast->get_exp(exp).op.op != OTHERWISE)
+		{
+			l = evaluate_expression(ast->get_exp(exp).op.left, params, ast);
+			r = evaluate_expression(ast->get_exp(exp).op.right, params, ast);
+		}
 
 		switch(ast->get_exp(exp).op.op)
 		{

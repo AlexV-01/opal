@@ -4,3 +4,8 @@ fn fib of n
 	1 : n = 1
 	fib(n-1) + fib(n-2) : otherwise
 }
+
+fn main of n
+{
+	fib(n)
+}
