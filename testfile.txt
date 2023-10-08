@@ -6,8 +6,8 @@ fn game of x y z {
 
 
         6 : z<9  ?Hello friends!!!!
-	4.1 : x + y > 8 
-	5 : otherwise ? test comment!
-
+	4.1 : x + y > 8    
+	5 : otherwise ? test comment!  
+   
 
 }

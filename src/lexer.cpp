@@ -78,6 +78,11 @@ std::vector<Token> lex_file(std::string fileName) {
 
     beginning:
     while (file.peek() != EOF) {
+        // REMOVE ALL WHITESPACE BEFORE POTENTIAL NEW LINE
+        while (std::isspace(file.peek()) && file.peek() != '\n') {
+            file.get();
+        }
+        
         // CHECK FOR A NEW LINE
         if (file.peek() == '\n') {
             file.get();
@@ -123,11 +128,11 @@ std::vector<Token> lex_file(std::string fileName) {
             for (std::string op : sorted_operators()) {
                 if (op == buffrange) {
                     list.push_back(Token(Token::OPERATOR, OPERATORS.at(op)));
-                    file.seekg(oldpos + op.length(), std::ios::_Seekbeg);
+                    file.seekg(oldpos + op.length(), std::ios_base::beg);
                     goto beginning;
                 }
             }
-            file.seekg(oldpos, std::ios::_Seekbeg);
+            file.seekg(oldpos, std::ios_base::beg);
             free(bufstr);
             i--;
         }
@@ -146,11 +151,11 @@ std::vector<Token> lex_file(std::string fileName) {
             for (std::string sep : sorted_separators()) {
                 if (sep == buffrange) {
                     list.push_back(Token(Token::SEPARATOR, SEPARATORS.at(sep)));
-                    file.seekg(oldpos + sep.length(), std::ios::_Seekbeg);
+                    file.seekg(oldpos + sep.length(), std::ios_base::beg);
                     goto beginning;
                 }
             }
-            file.seekg(oldpos, std::ios::_Seekbeg);
+            file.seekg(oldpos, std::ios_base::beg);
             free(bufstr);
             i--;
         }
@@ -168,6 +173,7 @@ std::vector<Token> lex_file(std::string fileName) {
                     break;
                 }
                 if (std::isdigit(file.peek())) {
+                    char test = file.peek();
                     acc += file.get();
                 } else {
                     break;
