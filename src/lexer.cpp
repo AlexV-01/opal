@@ -80,6 +80,9 @@ std::vector<Token> lex_file(std::string fileName) {
     if (!file.good())
         return std::vector<Token>();
 
+    int32_t curLine = 1;
+    int32_t curCharIdx = 0;
+
     beginning:
     while (file.peek() != EOF) {
         // REMOVE ALL WHITESPACE BEFORE POTENTIAL NEW LINE
@@ -88,11 +91,12 @@ std::vector<Token> lex_file(std::string fileName) {
         }
         
         // CHECK FOR A NEW LINE
-        if (file.peek() == '\n') {
+        while (file.peek() == '\n') {
             file.get();
             if (list.size() > 0 && list.back().type != Token::Type::NEWLINE) {
-                list.push_back(Token(Token::Type::NEWLINE));
+                list.push_back(Token(Token::Type::NEWLINE, curLine, curCharIdx));
             }
+            curLine++;
             goto beginning;
         }
 
@@ -108,8 +112,9 @@ std::vector<Token> lex_file(std::string fileName) {
                 if (file.peek() == '\n') {
                     file.get();
                     if (list.size() > 0 && list.back().type != Token::Type::NEWLINE) {
-                        list.push_back(Token(Token::Type::NEWLINE));
+                        list.push_back(Token(Token::Type::NEWLINE, curLine, curCharIdx));
                     }
+                    curLine++;
                     goto beginning;
                 }
                 if(file.eof()) goto beginning;
@@ -131,7 +136,7 @@ std::vector<Token> lex_file(std::string fileName) {
             std::string buffrange(bufstr);
             for (std::string op : sorted_operators()) {
                 if (op == buffrange) {
-                    list.push_back(Token(Token::OPERATOR, OPERATORS.at(op)));
+                    list.push_back(Token(Token::OPERATOR, OPERATORS.at(op), curLine, curCharIdx));
                     file.seekg(oldpos + op.length(), std::ios_base::beg);
                     goto beginning;
                 }
@@ -154,7 +159,7 @@ std::vector<Token> lex_file(std::string fileName) {
 
             for (std::string sep : sorted_separators()) {
                 if (sep == buffrange) {
-                    list.push_back(Token(Token::SEPARATOR, SEPARATORS.at(sep)));
+                    list.push_back(Token(Token::SEPARATOR, SEPARATORS.at(sep), curLine, curCharIdx));
                     file.seekg(oldpos + sep.length(), std::ios_base::beg);
                     goto beginning;
                 }
@@ -191,9 +196,9 @@ std::vector<Token> lex_file(std::string fileName) {
                 throw new LexErrorInvalidToken(0, 0);
             }
             if (is_int) {
-                list.push_back(Token(Token::Type::INT_LITERAL, std::stoi(acc)));
+                list.push_back(Token(Token::Type::INT_LITERAL, std::stoi(acc), curLine, curCharIdx));
             } else if (is_int == false) {
-                list.push_back(Token(Token::Type::FLOAT_LITERAL, std::stof(acc)));
+                list.push_back(Token(Token::Type::FLOAT_LITERAL, std::stof(acc), curLine, curCharIdx));
             }
             goto beginning;
         }
@@ -208,7 +213,7 @@ std::vector<Token> lex_file(std::string fileName) {
             }
             char* acc_arr = new char[acc.length() + 1];
             strcpy(acc_arr, acc.c_str());
-            list.push_back(Token(Token::IDENTIFIER, acc_arr));
+            list.push_back(Token(Token::IDENTIFIER, acc_arr, curLine, curCharIdx));
         }
     }
 
