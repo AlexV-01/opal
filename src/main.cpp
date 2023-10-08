@@ -1,34 +1,25 @@
 #include <stdio.h>
 #include <vector>
+#include <iostream>
+
 #include "lexer.hpp"
 #include "parser.hpp"
+#include "interpreter.hpp"
 
-void print_tokens(std::vector<Token> tokens) {
-	for (Token t : tokens) {
-		switch(t.type) {
-			case Token::Type::OPERATOR:
-				printf("%d\n", t.op);
-			case Token::Type::SEPARATOR:
-				printf("%d\n", t.sep);
-			case Token::Type::INT_LITERAL:
-				printf("%d\n", t.intLit);
-			case Token::Type::FLOAT_LITERAL:
-				printf("%f\n", t.floatLit);
-			case Token::Type::IDENTIFIER:
-				printf("%s\n", t.iden);
-			case Token::Type::NEWLINE:
-				printf("NEW LINE HERE\n");
-		}
-	}
-}
-
-int main()
+int main(int argc, char *argv[])
 {
+	if(argc < 2)
+		return -1;
 
-	std::vector<Token> tokens = lex_file("testfile.txt");
+	std::string fileName(argv[0]);
+	std::string mainFunc(argv[1]); 
+	std::vector<std::string> args;
+	for(int i = 2; i < argc; i++)
+		args.push_back(std::string(argv[i]));
+
+	std::vector<Token>& tokens = lex_file(fileName);
 	AST* ast = generate_ast(tokens);
+	std::cout << run(ast, args) << std::endl;
 
-	print_tokens(tokens);
-	//free_tokens(tokens);
 	return 0;
 }
