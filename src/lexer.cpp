@@ -31,6 +31,19 @@ void free_tokens(std::vector<Token> tokens) {
     }
 }
 
+static char* read_n_bytes(std::ifstream& file, int n) {
+    char* bytes = (char*)malloc(n);
+    for (int i = 0; i < n; i++) {
+        if (file.peek() == EOF) return bytes;
+        bytes[i] = file.get();
+    }
+    return bytes;
+}
+
+static void free_read_bytes(char* bytes) {
+    free(bytes);
+}
+
 static int MAX_OP_LEN = sorted_operators().front().length();
 static int MIN_OP_LEN = sorted_operators().back().length();
 
@@ -60,12 +73,17 @@ std::vector<Token> lex_file(std::string fileName) {
     std::vector<Token> list;
 
     std::ifstream file(fileName);
+    if (!file.good())
+        return {};
 
     beginning:
-    while (!file.eof()) {
+    while (file.peek() != EOF) {
         // CHECK FOR A NEW LINE
         if (file.peek() == '\n') {
-            list.push_back(Token(Token::Type::NEWLINE));
+            file.get();
+            if (list.size() > 0 && list.back().type != Token::Type::NEWLINE) {
+                list.push_back(Token(Token::Type::NEWLINE));
+            }
             goto beginning;
         }
 
@@ -79,7 +97,10 @@ std::vector<Token> lex_file(std::string fileName) {
             while(true) {
                 // case: end
                 if (file.peek() == '\n') {
-                    list.push_back(Token(Token::Type::NEWLINE));
+                    file.get();
+                    if (list.size() > 0 && list.back().type != Token::Type::NEWLINE) {
+                        list.push_back(Token(Token::Type::NEWLINE));
+                    }
                     goto beginning;
                 }
                 if(file.eof()) goto beginning;
@@ -90,48 +111,50 @@ std::vector<Token> lex_file(std::string fileName) {
         }
 
         // CHECK FOR AN OPERATOR
-        char buffer[MAX_OP_LEN];
-        file.read(buffer, MAX_OP_LEN);
+        char test = file.peek();
+        size_t oldpos = file.tellg();
+        char* buffer = read_n_bytes(file, MAX_OP_LEN);
         int i = MAX_OP_LEN;
         while (i >= MIN_OP_LEN) {
-            char bufstr[i];
+            char* bufstr = (char*)malloc(i+1);
             for (int j = 0; j < i; j++) bufstr[j] = buffer[j];
             bufstr[i] = '\0';
             std::string buffrange(bufstr);
             for (std::string op : sorted_operators()) {
                 if (op == buffrange) {
                     list.push_back(Token(Token::OPERATOR, OPERATORS.at(op)));
-                    while (i > 0) {
-                        file.get();
-                        i--;
-                    }
+                    file.seekg(oldpos + op.length(), std::ios::_Seekbeg);
                     goto beginning;
                 }
             }
+            file.seekg(oldpos, std::ios::_Seekbeg);
+            free(bufstr);
             i--;
         }
+        free_read_bytes(buffer);
 
         // CHECK FOR A SEPARATOR
-        char buffer2[MAX_SEP_LEN];
-        file.read(buffer2, MAX_SEP_LEN);
+        oldpos = file.tellg();
+        char* buffer2 = read_n_bytes(file, MAX_SEP_LEN);
         i = MAX_SEP_LEN;
         while (i >= MIN_SEP_LEN) {
-            char bufstr[i];
+            char* bufstr = (char*)malloc(i+1);
             for (int j = 0; j < i; j++) bufstr[j] = buffer2[j];
             bufstr[i] = '\0';
             std::string buffrange(bufstr);
+
             for (std::string sep : sorted_separators()) {
                 if (sep == buffrange) {
                     list.push_back(Token(Token::SEPARATOR, SEPARATORS.at(sep)));
-                    while (i > 0) {
-                        file.get();
-                        i--;
-                    }
+                    file.seekg(oldpos + sep.length(), std::ios::_Seekbeg);
                     goto beginning;
                 }
             }
+            file.seekg(oldpos, std::ios::_Seekbeg);
+            free(bufstr);
             i--;
         }
+        free_read_bytes(buffer2);
 
         // CHECK FOR AN INTEGER OR FLOAT LITERAL
         bool is_number = std::isdigit(file.peek()) || file.peek() == '.' ? true : false;
@@ -170,11 +193,11 @@ std::vector<Token> lex_file(std::string fileName) {
             throw new LexError();
         } else {
             std::string acc = "";
-            char* acc_arr = new char[acc.length() + 1];
-            strcpy(acc_arr, acc.c_str());
             while (std::isalnum(file.peek()) || file.peek() == '_') {
                 acc += file.get();
             }
+            char* acc_arr = new char[acc.length() + 1];
+            strcpy(acc_arr, acc.c_str());
             list.push_back(Token(Token::IDENTIFIER, acc_arr));
         }
     }

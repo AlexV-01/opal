@@ -104,15 +104,15 @@ inline static Token next_token_keep_newline(std::vector<Token>& tokens, size_t& 
 inline static Token next_token_skip_newline(std::vector<Token>& tokens, size_t& pos)
 {
     remove_newline_tokens(tokens, pos);
-    next_token_keep_newline(tokens, pos);
+    return next_token_keep_newline(tokens, pos);
 }
 
 inline static Token next_token(std::vector<Token>& tokens, size_t& pos, int32_t parenDepth)
 {
     if(parenDepth == 0)
-        next_token_keep_newline(tokens, pos);
+        return next_token_keep_newline(tokens, pos);
     else
-        next_token_skip_newline(tokens, pos);
+        return next_token_skip_newline(tokens, pos);
 }
 
 //------------------------------------------------------

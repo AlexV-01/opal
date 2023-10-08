@@ -26,6 +26,6 @@ int main()
 
 	std::vector<Token> tokens = lex_file("testfile.txt");
 	print_tokens(tokens);
-	free_tokens(tokens);
+	//free_tokens(tokens);
 	return 0;
 }

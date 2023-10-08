@@ -2,5 +2,5 @@
 
 std::string run(AST* ast, std::string arg)
 {
-	
+	return "run";
 }
