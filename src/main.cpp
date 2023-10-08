@@ -9,20 +9,20 @@
 
 int main(int argc, char *argv[])
 {
-	if(argc < 2)
-		return -1;
+	//if(argc < 2)
+		//return -1;
 
-	std::string fileName(argv[0]);
-	std::string mainFunc(argv[1]); 
-	std::vector<std::string> args;
-	for(int i = 2; i < argc; i++)
-		args.push_back(std::string(argv[i]));
+	//std::string fileName(argv[0]);
+	//std::string mainFunc(argv[1]); 
+	//std::vector<std::string> args;
+	//for(int i = 2; i < argc; i++)
+		//args.push_back(std::string(argv[i]));
 
 	try
 	{
-		std::vector<Token>& tokens = lex_file(fileName);
+		std::vector<Token> tokens = lex_file("../testfile.txt");
 		AST* ast = generate_ast(tokens);
-		std::cout << run(ast, args) << std::endl;
+		std::cout << run(ast, std::vector<std::string> {5}) << std::endl;
 
 		free_ast(ast);
 		free_tokens(tokens);

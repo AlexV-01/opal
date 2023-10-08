@@ -5,7 +5,7 @@
 #include "token.hpp"
 #include <vector>
 
-AST* generate_ast(const std::vector<Token>& tokens);
+AST* generate_ast(std::vector<Token>& tokens);
 void free_ast(AST* ast);
 
 #endif

@@ -69,12 +69,12 @@ public:
     }
 };
 
-std::vector<Token>& lex_file(std::string fileName) {
+std::vector<Token> lex_file(std::string fileName) {
     std::vector<Token> list;
 
     std::ifstream file(fileName);
     if (!file.good())
-        return {};
+        return std::vector<Token>();
 
     beginning:
     while (file.peek() != EOF) {
