@@ -9,9 +9,9 @@ fn den of n r {
 }
 
 fn perm of n r {
-    num(n) / den(n r) : otherwise
+    num(n) / den(n, r) : otherwise
 }
 
 fn main of n r {
-    perm(n r)
+    perm(n, r)
 }
