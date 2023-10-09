@@ -7,8 +7,16 @@
 #include "parser.hpp"
 #include "interpreter.hpp"
 
+#define VERSION 0.1
+
 int main(int argc, char *argv[])
 {
+	if (argc == 2 && argv[1] == "--version")
+	{
+		printf("%s", VERSION);
+		return 0;
+	}
+
 	if(argc < 2)
 		return -1;
 
